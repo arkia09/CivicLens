@@ -1,0 +1,42 @@
+## Backend
+services:
+  - type: web
+    name: civiclens-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.13
+      - key: USE_MOCK
+        value: "false"
+      - key: DEDUPE_IMAGES
+        value: "true"
+      - key: SEARCH_CACHE_HOURS
+        value: "24"
+      - key: SEARCH_DAILY_LIMIT
+        value: "50"
+      - key: GEMMA_API_KEY
+        sync: false
+      - key: SERPAPI_KEY
+        sync: false
+      # Exact frontend URL, e.g. https://civiclens-web.onrender.com (https, no trailing slash)
+      - key: CORS_ORIGINS
+        sync: false
+## Frontend
+  - type: web
+    name: civiclens-web
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: NODE_VERSION
+        value: 20.19.0
+      # Backend URL, e.g. https://civiclens-api.onrender.com (no trailing slash).
+      # Baked in at build time: changing it requires a redeploy of this service.
+      - key: VITE_API_URL
+        sync: false
