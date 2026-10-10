@@ -1,17 +1,17 @@
-"""Civic Lens backend. Chunk 2: real Gemma analysis (mock mode still available via USE_MOCK=true).
-Run:  uvicorn main:app --reload --port 8000"""
+"""Civic Lens backend.
+Run:  uvicorn main:app --reload --port 8000
+USE_MOCK=true serves canned data (no Gemma or SerpApi calls) for frontend work."""
 import os
-import warnings
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
-warnings.filterwarnings("ignore", message=".*protected namespace.*")
 load_dotenv()
 
 import gemma  # noqa: E402
-from mock_data import get_mock_analysis, get_mock_quest  # noqa: E402  (after load_dotenv)
+import search  # noqa: E402
+from mock_data import get_mock_analysis, get_mock_channel, get_mock_quest  # noqa: E402
 from models import (  # noqa: E402
     AnalyzeResponse, FindChannelRequest, FindChannelResponse, QuestRequest, QuestResponse, SlotId,
 )
@@ -84,11 +84,9 @@ async def analyze(
 
 @app.post("/api/find-channel", response_model=FindChannelResponse)
 def find_channel(req: FindChannelRequest):
-    # Chunk 4: replace with SerpApi search (+ cache, .gov.in / .nic.in priority).
-    return FindChannelResponse(
-        found=True,
-        title="Mock municipal grievance portal",
-        url="https://example.gov.in/grievance",
-        source="mock",
-        bonus=2,
-    )
+    if use_mock():
+        return get_mock_channel()
+    try:
+        return search.find_channel(req.location.strip(), req.issue_type.strip(), req.authority.strip())
+    except search.SearchUnavailable:
+        raise HTTPException(503, "Reporting-page search is unavailable right now. Please try again later.")

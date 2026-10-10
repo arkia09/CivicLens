@@ -1,12 +1,19 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { getQuest } from "./api";
-import type { AnalyzeResult, Quest, SlotId } from "./types";
+import type { AnalyzeResult, ChannelResult, Quest, SlotId } from "./types";
+import { slotPoints } from "./points";
 import SlotCard from "./components/SlotCard";
+import Completion from "./components/Completion";
 
 const KEY = "civic-lens-v1";
-type Saved = { location: string; quest: Quest | null; results: Partial<Record<SlotId, AnalyzeResult>> };
-const EMPTY: Saved = { location: "", quest: null, results: {} };
+type Saved = {
+  location: string;
+  quest: Quest | null;
+  results: Partial<Record<SlotId, AnalyzeResult>>;
+  channels: Partial<Record<SlotId, ChannelResult>>;
+};
+const EMPTY: Saved = { location: "", quest: null, results: {}, channels: {} };
 
 function load(): Saved {
   try { return { ...EMPTY, ...JSON.parse(localStorage.getItem(KEY) ?? "{}") }; } catch { return EMPTY; }
@@ -22,9 +29,10 @@ export default function App() {
     try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch { /* storage unavailable */ }
   }, [saved]);
 
-  const { quest, results, location } = saved;
+  const { quest, results, channels, location } = saved;
   const done = Object.keys(results).length;
-  const points = Object.values(results).reduce((n, r) => n + (r?.score.total ?? 0), 0);
+  const points = (Object.keys(results) as SlotId[]).reduce(
+    (n, id) => n + (results[id] ? slotPoints(results[id], channels[id]) : 0), 0);
 
   async function start(e: FormEvent) {
     e.preventDefault();
@@ -32,7 +40,7 @@ export default function App() {
     setError("");
     try {
       const place = input.trim();
-      setSaved({ location: place, quest: await getQuest(place), results: {} });
+      setSaved({ ...EMPTY, location: place, quest: await getQuest(place) });
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -73,16 +81,16 @@ export default function App() {
               <p className="mt-1 text-xs text-slate-500">{done}/3 problems found · {points} points</p>
             </div>
 
-            {done === 3 && (
-              <div className="rounded-xl bg-green-600 p-4 text-center text-white">
-                <p className="text-xl font-bold">Grass Touched 🌱</p>
-                <p>3/3 problems found · {points} points</p>
-              </div>
-            )}
+            {done === 3 && <Completion location={location} quest={quest} results={results}
+              channels={channels} points={points} />}
 
             {quest.slots.map((s) => (
               <SlotCard key={s.slot} slot={s} location={location} result={results[s.slot]}
-                onDone={(r) => setSaved((p) => ({ ...p, results: { ...p.results, [s.slot]: r } }))} />
+                channel={channels[s.slot]}
+                onDone={(r) => setSaved((p) => ({ ...p, results: { ...p.results, [s.slot]: r } }))}
+                // ignored if the user pressed "Start over" while the search was running
+                onChannel={(c) => setSaved((p) => p.results[s.slot]
+                  ? { ...p, channels: { ...p.channels, [s.slot]: c } } : p)} />
             ))}
           </>
         )}

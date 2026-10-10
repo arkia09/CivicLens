@@ -1,7 +1,7 @@
-"""Hardcoded responses so the frontend can be built before Gemma exists.
-Chunk 2 replaces get_mock_quest / get_mock_analysis with real Gemma calls."""
+"""Canned responses for USE_MOCK=true, plus the static quest used if Gemma fails."""
 from models import (
-    AnalyzeResponse, Authority, Complaint, Issue, QuestResponse, QuestSlot, RawScores, SlotId,
+    AnalyzeResponse, Authority, Complaint, FindChannelResponse, Issue, QuestResponse, QuestSlot,
+    RawScores, SlotId,
 )
 from utils import build_score
 
@@ -84,4 +84,11 @@ def get_mock_analysis(location: str, slot: SlotId, user_solution: str) -> Analyz
                   "I have attached a photograph. I request that the relevant authority "
                   "inspect the location and take appropriate action."),
         ),
+    )
+
+
+def get_mock_channel() -> FindChannelResponse:
+    return FindChannelResponse(
+        found=True, title="Mock municipal grievance portal",
+        url="https://example.gov.in/grievance", source="mock", bonus=2,
     )

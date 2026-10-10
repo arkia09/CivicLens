@@ -22,3 +22,11 @@ export interface AnalyzeResult {
   action_plan: string[];
   complaint: { subject: string; body: string };
 }
+
+export interface ChannelResult {
+  found: boolean;
+  title: string | null;
+  url: string | null;
+  source: string | null;
+  bonus: number;
+}

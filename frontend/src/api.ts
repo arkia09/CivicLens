@@ -1,39 +1,50 @@
-import type { AnalyzeResult, Quest, SlotId } from "./types";
+import type { AnalyzeResult, ChannelResult, Quest } from "./types";
 
 const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 
-// 422 = photo rejected / wrong category, 409 = photo reused, 502/503 = AI trouble.
-// The backend's `detail` text is always user-friendly, so we just show it.
-async function request<T>(path: string, init: RequestInit): Promise<T> {
-  let res: Response;
+async function handle<T>(res: Response): Promise<T> {
+  if (res.ok) return res.json();
+  let msg = "Something went wrong. Please try again.";
   try {
-    res = await fetch(BASE + path, init);
-  } catch {
-    throw new Error("Can't reach the server. Is the backend running?");
-  }
-  if (!res.ok) {
-    let msg = "Something went wrong. Please try again.";
-    try {
-      const detail = (await res.json()).detail;
-      if (typeof detail === "string") msg = detail;
-    } catch { /* non-JSON error body */ }
-    throw new Error(msg);
-  }
-  return res.json() as Promise<T>;
+    const body = await res.json();
+    if (typeof body.detail === "string") msg = body.detail;
+  } catch { /* non-JSON error body */ }
+  throw new Error(msg);
 }
 
-export const getQuest = (location: string) =>
-  request<Quest>("/api/quest", {
+export async function getQuest(location: string): Promise<Quest> {
+  const res = await fetch(`${BASE}/api/quest`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ location }),
   });
+  return handle<Quest>(res);
+}
 
-export function analyze(image: File, location: string, slot: SlotId, solution: string) {
+export async function analyze(
+  image: File,
+  location: string,
+  quest_slot: string,
+  user_solution: string
+): Promise<AnalyzeResult> {
   const form = new FormData();
   form.append("image", image);
   form.append("location", location);
-  form.append("quest_slot", slot);
-  form.append("user_solution", solution);
-  return request<AnalyzeResult>("/api/analyze", { method: "POST", body: form });
+  form.append("quest_slot", quest_slot);
+  form.append("user_solution", user_solution);
+  const res = await fetch(`${BASE}/api/analyze`, { method: "POST", body: form });
+  return handle<AnalyzeResult>(res);
+}
+
+export async function findChannel(
+  location: string,
+  issue_type: string,
+  authority: string
+): Promise<ChannelResult> {
+  const res = await fetch(`${BASE}/api/find-channel`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ location, issue_type, authority }),
+  });
+  return handle<ChannelResult>(res);
 }

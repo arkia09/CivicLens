@@ -1,5 +1,7 @@
 import { useState } from "react";
-import type { AnalyzeResult } from "../types";
+import type { AnalyzeResult, ChannelResult } from "../types";
+import { channelBonus, slotPoints } from "../points";
+import ChannelFinder from "./ChannelFinder";
 
 const SEVERITY = {
   low: "bg-yellow-100 text-yellow-800",
@@ -7,7 +9,15 @@ const SEVERITY = {
   high: "bg-red-100 text-red-800",
 };
 
-export default function ResultView({ r }: { r: AnalyzeResult }) {
+interface Props {
+  r: AnalyzeResult;
+  location: string;
+  channel?: ChannelResult;
+  onChannel: (c: ChannelResult) => void;
+}
+
+export default function ResultView({ r, location, channel, onChannel }: Props) {
+  const bonus = channelBonus(channel);
   const [copied, setCopied] = useState(false);
 
   async function copy() {
@@ -35,8 +45,11 @@ export default function ResultView({ r }: { r: AnalyzeResult }) {
 
       <div className="rounded-lg bg-green-50 p-3">
         <div className="flex justify-between font-medium">
-          <span>Problem {r.score.problem_validity}/10 · Your fix {r.score.solution_quality}/10</span>
-          <span>{r.score.total} pts</span>
+          <span>
+            Problem {r.score.problem_validity}/10 · Your fix {r.score.solution_quality}/10
+            {bonus > 0 && ` · Channel +${bonus}`}
+          </span>
+          <span className="shrink-0 pl-2">{slotPoints(r, channel)} pts</span>
         </div>
         <p className="mt-1 text-slate-600">{r.score.feedback}</p>
       </div>
@@ -45,6 +58,8 @@ export default function ResultView({ r }: { r: AnalyzeResult }) {
         <p className="font-medium">Who handles this</p>
         <p className="text-slate-600"><b>{r.authority.type}.</b> {r.authority.reason}</p>
       </div>
+
+      <ChannelFinder r={r} location={location} channel={channel} onChannel={onChannel} />
 
       <div>
         <p className="font-medium">What you can do</p>

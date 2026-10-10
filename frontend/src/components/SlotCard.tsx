@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { analyze } from "../api";
-import type { AnalyzeResult, QuestSlot } from "../types";
+import type { AnalyzeResult, ChannelResult, QuestSlot } from "../types";
 import ResultView from "./ResultView";
 
 const MAX_MB = 8;
@@ -9,10 +9,12 @@ interface Props {
   slot: QuestSlot;
   location: string;
   result?: AnalyzeResult;
+  channel?: ChannelResult;
   onDone: (r: AnalyzeResult) => void;
+  onChannel: (c: ChannelResult) => void;
 }
 
-export default function SlotCard({ slot, location, result, onDone }: Props) {
+export default function SlotCard({ slot, location, result, channel, onDone, onChannel }: Props) {
   const [file, setFile] = useState<File | null>(null);
   const [solution, setSolution] = useState("");
   const [loading, setLoading] = useState(false);
@@ -55,7 +57,7 @@ export default function SlotCard({ slot, location, result, onDone }: Props) {
       </div>
 
       {result ? (
-        <ResultView r={result} />
+        <ResultView r={result} location={location} channel={channel} onChannel={onChannel} />
       ) : (
         <div className="space-y-3">
           <label className="block cursor-pointer rounded-lg border-2 border-dashed border-slate-300 p-3 text-center text-sm text-slate-500">

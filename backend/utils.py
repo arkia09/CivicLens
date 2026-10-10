@@ -47,13 +47,8 @@ def remember_image(image_hash: str) -> None:
     _seen_hashes.add(image_hash)
 
 
-def build_score(raw: RawScores, channel_found: bool = False, slot_matches: bool = True) -> Score:
+def build_score(raw: RawScores, channel_found: bool = False) -> Score:
     """The ONLY place totals are computed. The model never sums points."""
-    if not slot_matches:
-        return Score(
-            problem_validity=0, solution_quality=0, bonus=0, total=0,
-            feedback=raw.feedback or "This photo doesn't match the category for this slot.",
-        )
     bonus = BONUS_CHANNEL_FOUND if channel_found else 0
     return Score(
         problem_validity=raw.problem_validity,
