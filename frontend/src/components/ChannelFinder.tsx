@@ -28,12 +28,11 @@ export default function ChannelFinder({ r, location, channel, onChannel }: Props
 
   if (channel?.found && channel.url && /^https?:\/\//i.test(channel.url)) {
     return (
-      <div className="rounded-lg border border-green-200 bg-green-50 p-3">
-        <p className="font-medium">Official reporting page found · +{channel.bonus} pts</p>
-        <p className="mt-1 break-words text-slate-600">{channel.title}</p>
-        <p className="break-all text-xs text-slate-500">{channel.source}</p>
-        <a href={channel.url} target="_blank" rel="noopener noreferrer"
-          className="mt-3 inline-block rounded bg-green-600 px-3 py-1.5 text-white">
+      <div className="rounded-xl border-2 border-moss bg-moss/10 p-4">
+        <h3 className="font-display font-bold">Official reporting page found, +{channel.bonus} pts</h3>
+        <p className="mt-1 break-words">{channel.title}</p>
+        <p className="break-all text-xs text-muted">{channel.source}</p>
+        <a href={channel.url} target="_blank" rel="noopener noreferrer" className="btn btn-ink mt-3 w-full sm:w-auto">
           Open reporting page
         </a>
       </div>
@@ -42,9 +41,9 @@ export default function ChannelFinder({ r, location, channel, onChannel }: Props
 
   if (channel) {
     return (
-      <div className="rounded-lg border border-slate-200 p-3">
-        <p className="font-medium">No official channel found</p>
-        <p className="mt-1 text-slate-600">
+      <div className="rounded-xl border-2 border-ink/15 p-4">
+        <h3 className="font-display font-bold">No official channel found</h3>
+        <p className="mt-1 text-muted">
           We couldn't find an official government page for this. Try your city's municipal website or helpline.
         </p>
       </div>
@@ -52,12 +51,11 @@ export default function ChannelFinder({ r, location, channel, onChannel }: Props
   }
 
   return (
-    <div className="rounded-lg border border-slate-200 p-3">
-      <p className="font-medium">Where to report it</p>
-      <p className="mt-1 text-slate-600">Find the official page to report this, and earn +2 bonus points.</p>
-      {error && <p className="mt-2 rounded bg-red-50 p-2 text-red-700">{error}</p>}
-      <button onClick={search} disabled={loading}
-        className="mt-3 rounded bg-slate-800 px-3 py-1.5 text-white disabled:opacity-50">
+    <div className="rounded-xl border-2 border-dashed border-ink/30 p-4">
+      <h3 className="font-display font-bold">Where to report it</h3>
+      <p className="mt-1 text-muted">Find the official page to report this and earn +2 bonus points.</p>
+      {error && <p role="alert" className="mt-3 rounded-lg bg-red-100 p-3 text-sm text-red-900">{error}</p>}
+      <button onClick={search} disabled={loading} className="btn btn-ink mt-3 w-full sm:w-auto">
         {loading ? "Searching official sites…" : error ? "Try again" : "Find reporting channel"}
       </button>
     </div>

@@ -5,6 +5,7 @@ import type { AnalyzeResult, ChannelResult, Quest, SlotId } from "./types";
 import { slotPoints } from "./points";
 import SlotCard from "./components/SlotCard";
 import Completion from "./components/Completion";
+import Mascot from "./components/Mascot";
 
 const KEY = "civic-lens-v1";
 type Saved = {
@@ -49,37 +50,70 @@ export default function App() {
   }
 
   return (
-    <main className="min-h-screen bg-green-50 text-slate-800">
-      <div className="mx-auto max-w-2xl space-y-4 px-4 py-8">
+    <main className="min-h-screen bg-forest text-paper">
+      <div className="mx-auto max-w-3xl space-y-5 px-4 pb-12 pt-5 sm:px-6">
         <header className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">🌱 Civic Lens</h1>
+          <div className="flex items-center gap-2">
+            <Mascot className="size-11" />
+            <p className="font-display text-2xl font-extrabold">Civic Lens</p>
+          </div>
           {quest && (
-            <button onClick={() => { setSaved(EMPTY); setInput(""); }} className="text-sm text-slate-500 underline">
+            <button onClick={() => { setSaved(EMPTY); setInput(""); }}
+              className="min-h-11 rounded-lg px-3 text-sm text-paper/80 underline underline-offset-4 hover:text-paper">
               Start over
             </button>
           )}
         </header>
 
         {!quest ? (
-          <form onSubmit={start} className="space-y-3 rounded-xl bg-white p-4 shadow-sm">
-            <p>Go outside. Find 3 real problems in your neighbourhood. Get scored for fixing them.</p>
-            <input value={input} onChange={(e) => setInput(e.target.value)} maxLength={100}
-              placeholder="Your area, e.g. Rohini, Delhi" className="w-full rounded-lg border border-slate-300 p-2" />
-            {error && <p className="rounded bg-red-50 p-2 text-sm text-red-700">{error}</p>}
-            <button disabled={input.trim().length < 2 || loading}
-              className="w-full rounded-lg bg-green-600 py-2 font-medium text-white disabled:opacity-40">
-              {loading ? "Preparing your quest…" : "Start my quest"}
-            </button>
-          </form>
-        ) : (
-          <>
-            <div className="rounded-xl bg-white p-4 shadow-sm">
-              <p className="text-sm text-slate-600">{quest.briefing}</p>
-              <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200">
-                <div className="h-full bg-green-600 transition-all" style={{ width: `${(done / 3) * 100}%` }} />
-              </div>
-              <p className="mt-1 text-xs text-slate-500">{done}/3 problems found · {points} points</p>
+          <div className="grid items-center gap-6 pt-2 md:grid-cols-[1fr_1.1fr] md:gap-10 md:pt-10">
+            <div className="grid place-items-center">
+              <div className="col-start-1 row-start-1 size-52 rounded-full bg-canopy md:size-80" />
+              <Mascot mood={loading ? "wait" : "hero"}
+                className="relative col-start-1 row-start-1 size-48 md:size-72" />
             </div>
+            <form onSubmit={start} className="space-y-4">
+              <h1 className="font-display text-4xl font-extrabold leading-[1.05] md:text-5xl">
+                Find 3 problems in your neighbourhood.
+              </h1>
+              <p className="max-w-md text-lg text-paper/80">
+                Photograph each one, say how you'd fix it, and get a score, the right authority and a complaint you can send.
+              </p>
+              <div>
+                <label htmlFor="area" className="mb-1.5 block text-sm font-medium text-paper/80">Your area</label>
+                <input id="area" value={input} onChange={(e) => setInput(e.target.value)} maxLength={100}
+                  placeholder="e.g. Rohini, Delhi" className="field" />
+              </div>
+              {error && (
+                <p role="alert" className="rounded-lg border border-red-300/40 bg-red-950/50 p-3 text-sm text-red-100">{error}</p>
+              )}
+              <button disabled={input.trim().length < 2 || loading} className="btn btn-flash w-full">
+                {loading ? "Preparing your quest…" : "Start my quest"}
+              </button>
+            </form>
+          </div>
+        ) : (
+          <div className="mx-auto w-full max-w-2xl space-y-5">
+            <h1 className="sr-only">Your quest in {location}</h1>
+
+            <section className="rounded-2xl bg-canopy p-4 sm:p-5">
+              <div className="flex items-start gap-4">
+                <Mascot className="size-20 shrink-0" />
+                <p className="bubble text-ink">{quest.briefing}</p>
+              </div>
+              <div className="mt-5" role="progressbar" aria-label="Problems found"
+                aria-valuemin={0} aria-valuemax={3} aria-valuenow={done}>
+                <div className="grid grid-cols-3 gap-2">
+                  {[0, 1, 2].map((i) => (
+                    <div key={i} className={`h-2.5 rounded-full transition-colors ${i < done ? "bg-flash" : "bg-paper/20"}`} />
+                  ))}
+                </div>
+                <div className="mt-2 flex justify-between text-sm text-paper/80">
+                  <span>{done} of 3 found</span>
+                  <span className="font-display text-base font-bold text-flash">{points} pts</span>
+                </div>
+              </div>
+            </section>
 
             {done === 3 && <Completion location={location} quest={quest} results={results}
               channels={channels} points={points} />}
@@ -92,7 +126,7 @@ export default function App() {
                 onChannel={(c) => setSaved((p) => p.results[s.slot]
                   ? { ...p, channels: { ...p.channels, [s.slot]: c } } : p)} />
             ))}
-          </>
+          </div>
         )}
       </div>
     </main>

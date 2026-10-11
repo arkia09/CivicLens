@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { AnalyzeResult, ChannelResult, Quest, SlotId } from "../types";
 import { channelBonus, slotPoints } from "../points";
+import Mascot from "./Mascot";
 
 interface Props {
   location: string;
@@ -40,23 +41,24 @@ export default function Completion({ location, quest, results, channels, points 
   }
 
   return (
-    <div className="space-y-3 rounded-xl bg-green-600 p-4 text-white">
-      <div className="text-center">
-        <p className="text-xl font-bold">Grass Touched 🌱</p>
-        <p>3/3 problems found · {points} points</p>
+    <section className="on-light rounded-2xl bg-flash p-4 text-ink sm:p-5">
+      <div className="flex items-center gap-3">
+        <Mascot mood="cheer" className="size-20 shrink-0" />
+        <div>
+          <h2 className="font-display text-2xl font-extrabold leading-tight">Grass Touched 🌱</h2>
+          <p>3/3 problems found, {points} points</p>
+        </div>
       </div>
-      <ul className="space-y-1 rounded-lg bg-white/15 p-3 text-sm">
+      <ul className="mt-4 divide-y divide-ink/15 rounded-xl bg-paper/70 text-sm">
         {rows.map((x) => (
-          <li key={x.key} className="flex justify-between gap-2">
+          <li key={x.key} className="flex items-center justify-between gap-3 p-3">
             <span className="min-w-0"><b className="capitalize">{x.issue}</b>
-              <span className="block text-xs opacity-80">{x.category}</span></span>
-            <span className="shrink-0 font-medium">{x.pts} pts</span>
+              <span className="block text-xs text-muted">{x.category}</span></span>
+            <span className="shrink-0 font-display text-base font-bold">{x.pts} pts</span>
           </li>
         ))}
       </ul>
-      <button onClick={copy} className="w-full rounded-lg bg-white py-2 font-medium text-green-700">
-        {copied ? "Copied ✓" : "Copy summary"}
-      </button>
-    </div>
+      <button onClick={copy} className="btn btn-ink mt-4 w-full">{copied ? "Copied ✓" : "Copy summary"}</button>
+    </section>
   );
 }
