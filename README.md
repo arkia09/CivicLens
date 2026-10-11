@@ -1,5 +1,3 @@
-
-https://github.com/user-attachments/assets/d60d4a43-1380-4630-a747-a66f4f71aaa0
 <p align="center">
   <img src="frontend/public/mascot.webp" alt="Civic Lens mascot" width="120" />
 </p>
