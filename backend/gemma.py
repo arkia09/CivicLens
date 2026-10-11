@@ -39,7 +39,6 @@ class GemmaBadOutput(Exception):
     """Model replied, but not with usable JSON, even after one retry."""
 
 
-# ---------- helpers ----------
 def clean_user_text(text: str) -> str:
     """Stop users closing our data tags to smuggle in instructions."""
     return re.sub(r"</?\s*(user_solution|location)\s*>", "", text, flags=re.I).strip()
@@ -70,7 +69,6 @@ def prepare_image(data: bytes) -> tuple[bytes, str]:
         return data, mime
 
 
-# ---------- the only functions that touch the network ----------
 async def _call_model(client, model: str, contents: list, config) -> str:
     resp = await asyncio.wait_for(
         client.aio.models.generate_content(model=model, contents=contents, config=config),
@@ -101,7 +99,7 @@ async def _generate(contents: list, system: str, temperature: float) -> str:
         max_output_tokens=2048,
     )
     thinking = os.getenv("GEMMA_THINKING", "minimal").strip()
-    if thinking:  # leave GEMMA_THINKING blank in .env to omit thinking_config entirely
+    if thinking:
         config_kwargs["thinking_config"] = types.ThinkingConfig(thinking_level=thinking)
     config = types.GenerateContentConfig(**config_kwargs)
 

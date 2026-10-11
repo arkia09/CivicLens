@@ -1,6 +1,3 @@
-"""Civic Lens backend.
-Run:  uvicorn main:app --reload --port 8000
-USE_MOCK=true serves canned data (no Gemma or SerpApi calls) for frontend work."""
 import os
 
 from dotenv import load_dotenv

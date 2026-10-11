@@ -10,7 +10,6 @@ SlotId = Literal[
 Severity = Literal["low", "medium", "high"]
 
 
-# ---------- /api/quest ----------
 class QuestRequest(BaseModel):
     location: str = Field(min_length=2, max_length=100)
 
@@ -26,7 +25,6 @@ class QuestResponse(BaseModel):
     slots: list[QuestSlot]
 
 
-# ---------- /api/analyze ----------
 class Issue(BaseModel):
     type: str
     severity: Severity
@@ -57,7 +55,7 @@ class RawScores(BaseModel):
         try:
             return max(0, min(10, round(float(v))))
         except (TypeError, ValueError):
-            return v  # let Pydantic raise a proper error
+            return v
 
 
 class Score(BaseModel):
@@ -96,7 +94,6 @@ class FindChannelResponse(BaseModel):
     bonus: int = 0  # +2 when found; frontend adds this to the slot's total
 
 
-# ---------- What Gemma returns (validated before we trust it) ----------
 class PhotoCheck(BaseModel):
     is_real_outdoor_photo: bool
     shows_civic_problem: bool
