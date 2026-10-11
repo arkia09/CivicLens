@@ -1,9 +1,4 @@
 """Finds an official reporting page for a complaint using SerpApi.
-
-Honesty rule: a result counts only if its domain is official (.gov.in / .nic.in) AND its
-title, snippet or URL mentions a reporting word. Otherwise we return found=False and no
-bonus. We never invent a link and never reward a random website.
-
 SerpApi calls only happen from /api/find-channel, which the frontend calls only when the
 user taps the button. Results are cached in memory, and a daily cap protects the quota.
 """
@@ -109,7 +104,6 @@ def _query(q: str, api_key: str) -> list[dict]:
     return data.get("organic_results") or []
 
 
-# ---------- ranking ----------
 def is_official(url: str) -> bool:
     try:
         parsed = urlparse(url)
@@ -148,7 +142,6 @@ def build_queries(location: str, issue_type: str, authority: str) -> list[str]:
     return [detailed, simple]
 
 
-# ---------- public ----------
 def find_channel(location: str, issue_type: str, authority: str) -> FindChannelResponse:
     key = _cache_key(location, authority)
     cached = _cache_get(key)

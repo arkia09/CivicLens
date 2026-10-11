@@ -1,7 +1,4 @@
-"""Try Gemma on a real photo from the command line (uses your real API key).
-
-  python try_gemma.py photo.jpg safety_infrastructure "Rohini, Delhi" "Fill it and resurface the road"
-  python try_gemma.py --quest "Rohini, Delhi"
+"""Try Gemma on a real photo from the command line 
 """
 import asyncio
 import sys
